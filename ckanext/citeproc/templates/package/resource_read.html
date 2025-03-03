@@ -1,0 +1,13 @@
+{% ckan_extends %}
+
+{% block resource_actions_inner %}
+  {{ super() }}
+  <li>
+    {% snippet "snippets/citeproc_button.html" %}
+  </li>
+{% endblock %}
+
+{%- block scripts %}
+  {{ super() }}
+  {% asset 'ckanext-citeproc/citeproc-js' %}
+{% endblock -%}

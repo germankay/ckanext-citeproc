@@ -1,0 +1,7 @@
+{% ckan_extends %}
+
+{% block follow_button %}
+  {{ super() }}
+  <br/><br/>
+  {% snippet "snippets/citeproc_button.html" %}
+{% endblock %}

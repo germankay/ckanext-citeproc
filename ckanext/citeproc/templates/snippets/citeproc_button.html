@@ -1,0 +1,18 @@
+{#
+Adds a button to open the citeproc modal for citations.
+
+res_dict - Resource data dict.
+pkg_dict - Dataset data dict.
+
+Example:
+
+  {% snippet 'snippets/citeproc_button.html', res_dict=res_dict %}
+
+#}
+<div class="btn-group">
+  <div data-module="citeproc-modal" data-module-config="">
+    <div class="citeproc-wrapper hidden d-none">
+      <a class="btn btn-secondary" href="javascript:void(0);"><i class="fas fa-quote-right" aria-hidden="true"></i>{{ _('Citations') }}</a>
+    </div>
+  </div>
+</div>

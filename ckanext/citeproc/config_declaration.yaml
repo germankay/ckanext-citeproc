@@ -1,0 +1,18 @@
+version: 1
+groups:
+  - annotation: ckanext-citeproc settings
+    options:
+      - key: ckanext.citeproc.dataset_citations
+        default: true
+        description: |
+          Whether ot not to show citations for datasets.
+        example: false
+        validators: ignore_missing
+        required: false
+      - key: ckanext.citeproc.resource_citations
+        default: true
+        description: |
+          Whether ot not to show citations for resources.
+        example: false
+        validators: ignore_missing
+        required: false
