@@ -2,12 +2,23 @@
 
 {% block resource_actions_inner %}
   {{ super() }}
-  <li>
-    {% snippet "snippets/citeproc_button.html" %}
-  </li>
+  {% if h.show_citations_for((pkg.type or 'dataset') ~ '_resource') %}
+    <li>
+      {% snippet "snippets/citeproc_button.html", res_dict=res %}
+    </li>
+  {% endif %}
 {% endblock %}
+
+{%- block footer %}
+  {{ super() }}
+  {% if h.show_citations_for((pkg.type or 'dataset') ~ '_resource') %}
+    {% snippet "snippets/citeproc_modal.html", res_dict=res %}
+  {% endif %}
+{% endblock -%}
 
 {%- block scripts %}
   {{ super() }}
-  {% asset 'ckanext-citeproc/citeproc-js' %}
+  {% if h.show_citations_for((pkg.type or 'dataset') ~ '_resource') %}
+    {% asset 'ckanext-citeproc/citeproc-js' %}
+  {% endif %}
 {% endblock -%}

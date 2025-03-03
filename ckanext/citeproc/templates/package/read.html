@@ -1,6 +1,15 @@
 {% ckan_extends %}
 
+{%- block footer %}
+  {{ super() }}
+  {% if h.show_citations_for(pkg.type or 'dataset') %}
+    {% snippet "snippets/citeproc_modal.html", pkg_dict=pkg %}
+  {% endif %}
+{% endblock -%}
+
 {%- block scripts %}
   {{ super() }}
-  {% asset 'ckanext-citeproc/citeproc-js' %}
+  {% if h.show_citations_for(pkg.type or 'dataset') %}
+    {% asset 'ckanext-citeproc/citeproc-js' %}
+  {% endif %}
 {% endblock -%}

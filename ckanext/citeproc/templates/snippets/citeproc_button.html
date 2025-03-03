@@ -9,10 +9,13 @@ Example:
   {% snippet 'snippets/citeproc_button.html', res_dict=res_dict %}
 
 #}
+{% set object_id = pkg_dict.id if pkg_dict else res_dict.id if res_dict else none %}
+{% set object_type = 'dataset' if pkg_dict else 'resource' if res_dict else none %}
+{% set button_text = _('Cite this') ~ ' ' ~ (_('dataset') if pkg_dict else _('resource')) %}
 <div class="btn-group">
-  <div data-module="citeproc-modal" data-module-config="">
-    <div class="citeproc-wrapper hidden d-none">
-      <a class="btn btn-secondary" href="javascript:void(0);"><i class="fas fa-quote-right" aria-hidden="true"></i>{{ _('Citations') }}</a>
+  <div data-module="citeproc-modal" data-module-object_id="{{ object_id }}" data-module-object_type="{{ object_type }}">
+    <div class="citeproc-wrapper">
+      <a class="btn btn-secondary" href="javascript:void(0);" data-toggle="modal" data-target="#citeproc-modal" data-bs-toggle="modal" data-bs-target="#citeproc-modal"><i class="fas fa-quote-right" aria-hidden="true"></i>{{ button_text }}</a>
     </div>
   </div>
 </div>

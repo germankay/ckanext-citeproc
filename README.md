@@ -24,6 +24,10 @@ Compatibility with Python versions:
 | 2.7 and earlier | no    |
 | 3.7 and later            | yes    |
 
+## Prerequisites
+
+citeproc-py currently only contains `harvard1.csl` for the styles. To allow for more styles, you will need to put any desired CSL files from https://github.com/citation-style-language/styles onto your server and define the citeproc style path with `ckanext.citeproc.citation_styles_path` in your CKAN INI file. The available citation formats will be built from any CSL files in this directory, so name you files appropriately, e.g. rename `apa-5th-edition.csl` to `apa.csl`
+
 ## Installation
 
 To install ckanext-citeproc:
@@ -49,12 +53,17 @@ To install ckanext-citeproc:
 
 ## Config settings
 
-**ckanext.citeproc.dataset_citations** controls citations showing for datasets:
+**ckanext.citeproc.citation_styles_path** specifies the absolute path on the server to the directory containing the CSL files:
+
+	# (required, default: None).
+	ckanext.citeproc.citation_styles_path = /path/to/csl/styles/directory/
+
+**ckanext.citeproc.<PACKAGE TYPE>_show_citations** controls citations showing for datasets of a given package type:
 
 	# (optional, default: true).
-	ckanext.citeproc.dataset_citations = false
+	ckanext.citeproc.dataset_show_citations = false
 
-**ckanext.citeproc.resource_citations** controls citations showing for resources:
+**ckanext.citeproc.<PACKAGE TYPE>_resource_show_citations** controls citations showing for resources of a given package type:
 
 	# (optional, default: true).
-	ckanext.citeproc.resource_citations = false
+	ckanext.citeproc.dataset_resource_show_citations = false

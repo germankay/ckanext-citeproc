@@ -1,7 +1,7 @@
 import ckan.plugins as plugins
 from ckan.common import CKANConfig
 
-from typing import Dict, Union
+from typing import Dict, Union, Callable, Any
 from ckan.types import (
     Action,
     ChainedAction,
@@ -12,6 +12,7 @@ from ckan.types import (
 from ckan.lib.plugins import DefaultTranslation
 
 from ckanext.citeproc.logic import action, auth
+from ckanext.citeproc import helpers
 
 
 @plugins.toolkit.blanket.config_declarations
@@ -20,6 +21,7 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
+    plugins.implements(plugins.ITemplateHelpers, inherit=True)
 
     # DefaultTranslation, ITranslation
     def i18n_domain(self) -> str:
@@ -44,3 +46,7 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
             'dataset_citation_show': auth.dataset_citation_show,
             'resource_citation_show': auth.resource_citation_show,
         }
+
+    # ITemplateHelpers
+    def get_helpers(self) -> Dict[str, Callable[..., Any]]:
+        return {'show_citations_for': helpers.show_citations_for}
