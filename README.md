@@ -26,7 +26,7 @@ Compatibility with Python versions:
 
 ## Prerequisites
 
-citeproc-py currently only contains `harvard1.csl` for the styles. To allow for more styles, you will need to put any desired CSL files from https://github.com/citation-style-language/styles onto your server and define the citeproc style path with `ckanext.citeproc.citation_styles_path` in your CKAN INI file. The available citation formats will be built from any CSL files in this directory, so name you files appropriately, e.g. rename `apa-5th-edition.csl` to `apa.csl`
+citeproc-py currently only contains `harvard1.csl` for the styles. To allow for more styles, you will need to put any desired CSL files from https://github.com/citation-style-language/styles onto your server and define the citeproc style path with `ckanext.citeproc.citation_styles_path` in your CKAN INI file. The available citation formats will be built from any CSL files in this directory.
 
 ## Installation
 

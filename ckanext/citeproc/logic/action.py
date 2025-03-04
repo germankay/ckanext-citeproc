@@ -1,92 +1,119 @@
-import os
-from citeproc import CitationStylesStyle, CitationStylesBibliography
+from citeproc import CitationStylesBibliography
 from citeproc import Citation, CitationItem
-from citeproc import formatter
+from citeproc import formatter, PRIMARY_DIALECTS
 from citeproc.source.json import CiteProcJSON
 from logging import getLogger
+from flask import has_request_context
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 from ckan.types import (
     Context,
     DataDict
 )
 
+from ckan.plugins import PluginImplementations
 from ckan.plugins.toolkit import (
     side_effect_free,
     check_access,
-    config
+    navl_validate,
+    ValidationError,
+    get_action,
+    h
+)
+from ckanext.citeproc.interfaces import ICiteProcStyles, ICiteProcMappings
+from ckanext.citeproc.logic.schema import (
+    dataset_citation_show_schema,
+    resource_citation_show_schema
 )
 
 
 log = getLogger(__name__)
 
-
-def _get_citation_styles(limit_styles: Optional[List[str]] = None) -> Dict[str, Any]:
-    if not limit_styles:
-        limit_styles = []
-    citation_styles_dir = config.get('ckanext.citeproc.citation_styles_path')
-    if not citation_styles_dir:
-        log.warning(
-            'ckanext.citeproc.citation_styles_path is not defined but required')
-        return
-    if not os.path.isdir(citation_styles_dir):
-        log.warning('%s is not a directory' % citation_styles_dir)
-        return
-    citation_styles = {}
-    for f in os.listdir(citation_styles_dir):
-        if f.endswith('.csl'):
-            style_name = f.replace('.csl', '')
-            if limit_styles and style_name not in limit_styles:
-                continue
-            citation_styles[style_name] = os.path.join(citation_styles_dir, f)
-    return citation_styles
+CITATION_TYPE = 'webpage'
 
 
-def _generate_citations(cite_data: List[Dict[str, Any]],
-                        citation_styles: Dict[str, Any]) -> Dict[str, str]:
-    citations = {}
+def _get_plugin():
+    """
+    Find the CiteProc instance
+    """
+    for plugin in PluginImplementations(ICiteProcStyles):
+        return plugin
+    raise Exception('CiteProc plugin not found. Have you enabled the plugin?')
+
+
+def _generate_citations(id: str,
+                        format: str,
+                        cite_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    citations = []
+    citation_styles = _get_plugin().citation_styles
     bib_source = CiteProcJSON(cite_data)
-    for style, style_path in citation_styles.items():
+    for citation_style in citation_styles:
         try:
-            bib_style = CitationStylesStyle(style_path, validate=False)
-            bibliography = CitationStylesBibliography(bib_style,
+            citation_style_class = citation_style.get('class')
+            locale = 'en-US'
+            if has_request_context() and h.lang() in PRIMARY_DIALECTS:
+                locale = PRIMARY_DIALECTS[h.lang()]
+            citation_style_class.root.set_locale_list(locale, validate=False)
+            bibliography = CitationStylesBibliography(citation_style_class,
                                                       bib_source,
-                                                      formatter.html)
-            citation = Citation([CitationItem('thisistheidofthedataset')])
+                                                      getattr(formatter, format))
+            citation = Citation([CitationItem(id)])
             bibliography.register(citation)
             bibliography.cite(citation, lambda x: log.debug(
                 'Reference with key {} not found in the bibliography.'.format(x.key)))
-            citations[style] = str(bibliography.bibliography()[0])
-        except Exception:
-            log.warning('Could not generate citation for dataset %s in the style %s' %
-                        ('', style))
+            cite_dict = dict(citation_style,
+                             citation=str(bibliography.bibliography()[0]))
+            cite_dict.pop('class', None)
+            citations.append(cite_dict)
+        except Exception as e:
+            # FIXME: https://github.com/citeproc-py/citeproc-py/issues/101
+            log.warning('Could not generate citation for %s in the style "%s"' %
+                        (id, citation_style['type']))
+            log.warning(e)
             pass
     return citations
 
 
 @side_effect_free
 def dataset_citation_show(context: Context,
-                          data_dict: DataDict) -> Dict[str, Any]:
-    # TODO: write schemas
+                          data_dict: DataDict) -> List[Dict[str, Any]]:
     check_access('dataset_citation_show', context, data_dict)
-    available_citation_styles = _get_citation_styles()
-    # FIXME: apa style not working...missing something??
-    dev = [{
-        "id": "thisistheidofthedataset",
-        "issued": {
-            "date-parts": [[1987,  8,  3],
-                           [2003, 10, 23]]
-        },
-        "title": "Developer Testing",
-        "type": "website"
-    }]
-    return _generate_citations(dev, available_citation_styles)
+
+    schema = dataset_citation_show_schema()
+
+    data, errors = navl_validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    pkg_dict = get_action('package_show')(context, {'id': data['id']})
+
+    cite_data = {'type': CITATION_TYPE}
+    for plugin in PluginImplementations(ICiteProcMappings):
+        cite_data = plugin.dataset_map(cite_data, pkg_dict)
+    # non-editable ID
+    cite_data['id'] = data['id']
+
+    return _generate_citations(data['id'], data['format'], [cite_data])
 
 
 @side_effect_free
 def resource_citation_show(context: Context,
-                           data_dict: DataDict) -> Dict[str, Any]:
-    # TODO: write schemas
+                           data_dict: DataDict) -> List[Dict[str, Any]]:
     check_access('resource_citation_show', context, data_dict)
-    available_citation_styles = _get_citation_styles()
-    return {}
+
+    schema = resource_citation_show_schema()
+
+    data, errors = navl_validate(data_dict, schema, context)
+    if errors:
+        raise ValidationError(errors)
+
+    res_dict = get_action('resource_show')(context, {'id': data['id']})
+    pkg_dict = get_action('package_show')(context, {'id': res_dict['package_id']})
+
+    cite_data = {'type': CITATION_TYPE}
+    for plugin in PluginImplementations(ICiteProcMappings):
+        cite_data = plugin.resource_map(cite_data, pkg_dict, res_dict)
+    # non-editable ID
+    cite_data['id'] = data['id']
+
+    return _generate_citations(data['id'], data['format'], [cite_data])
