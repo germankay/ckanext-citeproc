@@ -19,7 +19,8 @@ from ckan.plugins.toolkit import (
     navl_validate,
     ValidationError,
     get_action,
-    h
+    h,
+    _
 )
 from ckanext.citeproc.interfaces import ICiteProcStyles, ICiteProcMappings
 from ckanext.citeproc.logic.schema import (
@@ -71,10 +72,12 @@ def _generate_citations(id: str,
                 log.debug('CSL style "%s" does not support bibliography.' %
                           citation_style['type'])
                 continue
-            cite_dict = dict(citation_style,
-                             citation=str(citation))
-            cite_dict.pop('class', None)
-            citations.append(cite_dict)
+            citations.append({
+                'type': _(citation_style['type']),
+                'type_acronym': _(citation_style['type_acronym']),
+                'type_summary': _(citation_style['type_summary']),
+                'citation': str(citation)
+            })
         except Exception as e:
             # FIXME: https://github.com/citeproc-py/citeproc-py/issues/101
             # FIXED_WITH: https://github.com/citeproc-py/citeproc-py/pull/156

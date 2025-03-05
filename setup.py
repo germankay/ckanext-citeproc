@@ -8,6 +8,7 @@ setup(
     # http://babel.pocoo.org/docs/messages/#extraction-method-mapping-and-configuration
     message_extractors={
         'ckanext': [
+            ('**/csl_styles/*.csl', 'csl', None),
             ('**.py', 'python', None),
             ('**.js', 'javascript', None),
             ('**/templates/**.html', 'ckan', None),
@@ -16,5 +17,9 @@ setup(
     entry_points='''
         [ckan.plugins]
         citeproc=ckanext.citeproc.plugin:CiteProcPlugin
+
+        [babel.extractors]
+        ckan = ckan.lib.extract:extract_ckan
+        csl = ckanext.citeproc.extract:extract_csl_info
     ''',
 )

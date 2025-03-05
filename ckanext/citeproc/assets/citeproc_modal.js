@@ -11,7 +11,7 @@ this.ckan.module('citeproc-modal', function($){
       const _ = this._;
 
       function build_cite_section(index, citation){
-        let title = _(citation.type);
+        let title = citation.type;
         if( citation.type_acronym ){
           title += '&nbsp;<strong>(' + citation.type_acronym + ')</strong>';
         }
