@@ -85,7 +85,8 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
     def resource_citation_map(self, cite_data: DataDict,
                               pkg_dict: DataDict,
                               res_dict: DataDict) -> Tuple[bool, Dict[str, Any]]:
-        cite_data['title'] = plugins.toolkit.h.get_translated(res_dict, 'name')
+        cite_data['title'] = plugins.toolkit.h.get_translated(pkg_dict, 'title') + \
+            ' - ' + plugins.toolkit.h.get_translated(res_dict, 'name')
         cite_data['container_title'] = plugins.toolkit.config.get('ckan.site_title')
         if pkg_dict.get('owner_org'):
             org_dict = plugins.toolkit.get_action('organization_show')(
