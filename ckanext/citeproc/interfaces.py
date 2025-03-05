@@ -19,9 +19,11 @@ class ICiteProcStyles(interfaces.Interface):
 class ICiteProcMappings(interfaces.Interface):
     """Map Dataset and Resource fields to CSL"""
 
-    def dataset_map(self, cite_data: DataDict, pkg_dict: DataDict) -> Dict[str, Any]:
+    def dataset_citation_map(self, cite_data: DataDict,
+                             pkg_dict: DataDict) -> Dict[str, Any]:
         raise NotImplementedError
 
-    def resource_map(self, cite_data: DataDict, pkg_dict: DataDict,
-                     res_dict: DataDict) -> Dict[str, Any]:
+    def resource_citation_map(self, cite_data: DataDict,
+                              pkg_dict: DataDict,
+                              res_dict: DataDict) -> Dict[str, Any]:
         raise NotImplementedError

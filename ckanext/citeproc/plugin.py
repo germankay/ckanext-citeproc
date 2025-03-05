@@ -3,6 +3,7 @@ from datetime import datetime
 import xmltodict
 from lxml.etree import tostring
 from citeproc import CitationStylesStyle
+from logging import getLogger
 
 import ckan.plugins as plugins
 from ckan.common import CKANConfig
@@ -23,6 +24,9 @@ from ckanext.citeproc.logic import action, auth
 from ckanext.citeproc import helpers
 
 
+log = getLogger(__name__)
+
+
 @plugins.toolkit.blanket.config_declarations
 class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
     plugins.implements(ICiteProcStyles, inherit=True)
@@ -32,6 +36,8 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
+
+    citation_styles = []
 
     # ICiteProcStyles
     def load_citation_styles(self):
@@ -48,15 +54,17 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
                                                 validate=False)
                 style_info = xmltodict.parse(tostring(bib_style.xml)).get(
                     'style', {}).get('info', {})
-                # type_ignore_reason ICiteProcStyles
-                self.citation_styles.append({  # type: ignore
+                self.citation_styles.append({
                     'type': style_info.get('title'),
                     'type_acronym': style_info.get('title-short'),
                     'type_summary': style_info.get('summary'),
                     'class': bib_style})
+        log.debug('Loaded %s citation styles from %s' %
+                  (len(self.citation_styles), citation_styles_dir))
 
     # ICiteProcMappings
-    def dataset_map(self, cite_data: DataDict, pkg_dict: DataDict) -> Dict[str, Any]:
+    def dataset_citation_map(self, cite_data: DataDict,
+                             pkg_dict: DataDict) -> Dict[str, Any]:
         cite_data['title'] = plugins.toolkit.h.get_translated(pkg_dict, 'title')
         cite_data['container_title'] = plugins.toolkit.config.get('ckan.site_title')
         cite_data['publisher'] = plugins.toolkit.h.get_translated(
@@ -70,8 +78,9 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
                                                      id=pkg_dict['id'])
         return cite_data
 
-    def resource_map(self, cite_data: DataDict, pkg_dict: DataDict,
-                     res_dict: DataDict) -> Dict[str, Any]:
+    def resource_citation_map(self, cite_data: DataDict,
+                              pkg_dict: DataDict,
+                              res_dict: DataDict) -> Dict[str, Any]:
         cite_data['title'] = plugins.toolkit.h.get_translated(res_dict, 'name')
         cite_data['container_title'] = plugins.toolkit.config.get('ckan.site_title')
         cite_data['publisher'] = plugins.toolkit.h.get_translated(

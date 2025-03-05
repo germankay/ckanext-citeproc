@@ -1,0 +1,3 @@
+# TODO: write a custom babel extractor for load_citation_styles
+#       type, type_acronym, type_summary
+#       maybe do a gitmodule for the styles so we can extract from relative paths...

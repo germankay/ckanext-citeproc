@@ -1,6 +1,7 @@
 from citeproc import CitationStylesBibliography
 from citeproc import Citation, CitationItem
 from citeproc import formatter, PRIMARY_DIALECTS
+from citeproc.types import WEBPAGE
 from citeproc.source.json import CiteProcJSON
 from logging import getLogger
 from flask import has_request_context
@@ -29,8 +30,6 @@ from ckanext.citeproc.logic.schema import (
 
 log = getLogger(__name__)
 
-CITATION_TYPE = 'webpage'
-
 
 def _get_plugin():
     """
@@ -47,6 +46,11 @@ def _generate_citations(id: str,
     citations = []
     citation_styles = _get_plugin().citation_styles
     bib_source = CiteProcJSON(cite_data)
+
+    def _log_cite_failure(_cite: CitationItem):
+        log.debug('Reference with key {} not found in '
+                  'the bibliography.'.format(_cite.key))
+
     for citation_style in citation_styles:
         try:
             citation_style_class = citation_style.get('class')
@@ -59,14 +63,21 @@ def _generate_citations(id: str,
                                                       getattr(formatter, format))
             citation = Citation([CitationItem(id)])
             bibliography.register(citation)
-            bibliography.cite(citation, lambda x: log.debug(
-                'Reference with key {} not found in the bibliography.'.format(x.key)))
+            bibliography.cite(citation, _log_cite_failure)
+            try:
+                # not all CSL styles have bibliography.
+                citation = bibliography.bibliography()[0]
+            except Exception:
+                log.debug('CSL style "%s" does not support bibliography.' %
+                          citation_style['type'])
+                continue
             cite_dict = dict(citation_style,
-                             citation=str(bibliography.bibliography()[0]))
+                             citation=str(citation))
             cite_dict.pop('class', None)
             citations.append(cite_dict)
         except Exception as e:
             # FIXME: https://github.com/citeproc-py/citeproc-py/issues/101
+            # FIXED_WITH: https://github.com/citeproc-py/citeproc-py/pull/156
             log.warning('Could not generate citation for %s in the style "%s"' %
                         (id, citation_style['type']))
             log.warning(e)
@@ -87,9 +98,9 @@ def dataset_citation_show(context: Context,
 
     pkg_dict = get_action('package_show')(context, {'id': data['id']})
 
-    cite_data = {'type': CITATION_TYPE}
+    cite_data = {'type': WEBPAGE}
     for plugin in PluginImplementations(ICiteProcMappings):
-        cite_data = plugin.dataset_map(cite_data, pkg_dict)
+        cite_data = plugin.dataset_citation_map(cite_data, pkg_dict)
     # non-editable ID
     cite_data['id'] = data['id']
 
@@ -110,9 +121,9 @@ def resource_citation_show(context: Context,
     res_dict = get_action('resource_show')(context, {'id': data['id']})
     pkg_dict = get_action('package_show')(context, {'id': res_dict['package_id']})
 
-    cite_data = {'type': CITATION_TYPE}
+    cite_data = {'type': WEBPAGE}
     for plugin in PluginImplementations(ICiteProcMappings):
-        cite_data = plugin.resource_map(cite_data, pkg_dict, res_dict)
+        cite_data = plugin.resource_citation_map(cite_data, pkg_dict, res_dict)
     # non-editable ID
     cite_data['id'] = data['id']
 
