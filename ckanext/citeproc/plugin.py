@@ -52,8 +52,9 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
             if f.endswith('.csl'):
                 bib_style = CitationStylesStyle(os.path.join(citation_styles_dir, f),
                                                 validate=False)
-                style_info = xmltodict.parse(tostring(bib_style.xml)).get(
-                    'style', {}).get('info', {})
+                style_info = xmltodict.parse(tostring(bib_style.xml))
+                style_info = style_info.get(
+                    'style', {}).get('info', {}) if style_info else {}
                 self.citation_styles.append({
                     'type': style_info.get('title'),
                     'type_acronym': style_info.get('title-short'),
