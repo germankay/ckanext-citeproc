@@ -8,7 +8,7 @@ from logging import getLogger
 import ckan.plugins as plugins
 from ckan.common import CKANConfig
 
-from typing import Dict, Union, Callable, Any
+from typing import Dict, Union, Callable, Any, Tuple
 from ckan.types import (
     Action,
     ChainedAction,
@@ -65,7 +65,7 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
 
     # ICiteProcMappings
     def dataset_citation_map(self, cite_data: DataDict,
-                             pkg_dict: DataDict) -> Dict[str, Any]:
+                             pkg_dict: DataDict) -> Tuple[bool, Dict[str, Any]]:
         cite_data['title'] = plugins.toolkit.h.get_translated(pkg_dict, 'title')
         cite_data['container_title'] = plugins.toolkit.config.get('ckan.site_title')
         cite_data['publisher'] = plugins.toolkit.h.get_translated(
@@ -77,11 +77,11 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
         cite_data['URL'] = plugins.toolkit.h.url_for('%s.read' % pkg_dict['type'],
                                                      _external=True,
                                                      id=pkg_dict['id'])
-        return cite_data
+        return True, cite_data
 
     def resource_citation_map(self, cite_data: DataDict,
                               pkg_dict: DataDict,
-                              res_dict: DataDict) -> Dict[str, Any]:
+                              res_dict: DataDict) -> Tuple[bool, Dict[str, Any]]:
         cite_data['title'] = plugins.toolkit.h.get_translated(res_dict, 'name')
         cite_data['container_title'] = plugins.toolkit.config.get('ckan.site_title')
         cite_data['publisher'] = plugins.toolkit.h.get_translated(
@@ -96,7 +96,7 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
                                                      package_type=pkg_dict['type'],
                                                      id=pkg_dict['id'],
                                                      resource_id=res_dict['id'])
-        return cite_data
+        return True, cite_data
 
     # DefaultTranslation, ITranslation
     def i18n_domain(self) -> str:

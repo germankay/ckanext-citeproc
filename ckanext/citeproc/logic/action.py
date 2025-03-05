@@ -103,7 +103,10 @@ def dataset_citation_show(context: Context,
 
     cite_data = {'type': WEBPAGE}
     for plugin in PluginImplementations(ICiteProcMappings):
-        cite_data = plugin.dataset_citation_map(cite_data, pkg_dict)
+        do_next_plugins, cite_data = plugin.dataset_citation_map(
+            cite_data, pkg_dict)
+        if not do_next_plugins:
+            break
     # non-editable ID
     cite_data['id'] = data['id']
 
@@ -126,7 +129,10 @@ def resource_citation_show(context: Context,
 
     cite_data = {'type': WEBPAGE}
     for plugin in PluginImplementations(ICiteProcMappings):
-        cite_data = plugin.resource_citation_map(cite_data, pkg_dict, res_dict)
+        do_next_plugins, cite_data = plugin.resource_citation_map(
+            cite_data, pkg_dict, res_dict)
+        if not do_next_plugins:
+            break
     # non-editable ID
     cite_data['id'] = data['id']
 
