@@ -2,13 +2,9 @@ this.ckan.module('citeproc-modal', function($){
   return {
     /* options object can be extended using data-module-* attributes */
     options : {
-      language: 'en',
-      object_id: null,
-      object_type: null,
+      ajax_uri: null,
     },
     initialize: function (){
-      const objectID = this.options.object_id;
-      const objectType = this.options.object_type;
       const _ = this._;
 
       function build_cite_section(index, citation){
@@ -73,16 +69,8 @@ this.ckan.module('citeproc-modal', function($){
         }
       }
 
-      let uri = '/' + this.options.language
-      if( objectType == 'resource' ){
-        uri += '/api/action/resource_citation_show';
-      }else{
-        uri += '/api/action/dataset_citation_show';
-      }
-      uri += '?format=html&id=' + objectID;
-
       $.ajax({
-        'url': uri,
+        'url': this.options.ajax_uri,
         'type': 'GET',
         'complete': function(_data){
           if( _data.responseJSON ){  // we have response JSON
