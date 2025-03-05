@@ -32,11 +32,11 @@ def extract_csl_info(
         'style', {}).get('info', {}) if style_info else {}
     title = style_info.get('title')
     _dir, filename = os.path.split(fileobj.name)
-    if title:
+    if title and isinstance(title, str):
         yield (0, '', title, ['Title for CSL Style: %s' % filename])
     acronym = style_info.get('title-short')
-    if acronym:
-        yield (0, '', title, ['Acronym for CSL Style: %s' % filename])
+    if acronym and isinstance(acronym, str):
+        yield (0, '', acronym, ['Acronym for CSL Style: %s' % filename])
     summary = style_info.get('summary')
-    if summary:
-        yield (0, '', title, ['Summary for CSL Style: %s' % filename])
+    if summary and isinstance(summary, str):
+        yield (0, '', summary, ['Summary for CSL Style: %s' % filename])
