@@ -68,8 +68,11 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
                              pkg_dict: DataDict) -> Tuple[bool, Dict[str, Any]]:
         cite_data['title'] = plugins.toolkit.h.get_translated(pkg_dict, 'title')
         cite_data['container_title'] = plugins.toolkit.config.get('ckan.site_title')
-        cite_data['publisher'] = plugins.toolkit.h.get_translated(
-            pkg_dict['organization'], 'title')
+        if pkg_dict.get('owner_org'):
+            org_dict = plugins.toolkit.get_action('organization_show')(
+                {'ignore_auth': True}, {'id': pkg_dict.get('owner_org')})
+            cite_data['publisher'] = plugins.toolkit.h.get_translated(
+                org_dict, 'title')
         created_date = datetime.fromisoformat(pkg_dict['metadata_created'])
         cite_data['issued'] = {
             'date-parts': [[created_date.year, created_date.month, created_date.month]]
@@ -84,8 +87,11 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
                               res_dict: DataDict) -> Tuple[bool, Dict[str, Any]]:
         cite_data['title'] = plugins.toolkit.h.get_translated(res_dict, 'name')
         cite_data['container_title'] = plugins.toolkit.config.get('ckan.site_title')
-        cite_data['publisher'] = plugins.toolkit.h.get_translated(
-            pkg_dict['organization'], 'title')
+        if pkg_dict.get('owner_org'):
+            org_dict = plugins.toolkit.get_action('organization_show')(
+                {'ignore_auth': True}, {'id': pkg_dict.get('owner_org')})
+            cite_data['publisher'] = plugins.toolkit.h.get_translated(
+                org_dict, 'title')
         created_date = datetime.fromisoformat(res_dict['created'])
         cite_data['issued'] = {
             'date-parts': [[created_date.year, created_date.month, created_date.month]]
