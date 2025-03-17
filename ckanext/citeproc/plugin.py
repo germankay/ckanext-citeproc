@@ -71,7 +71,8 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
             lang = plugins.toolkit.h.lang()
         except RuntimeError:
             pass
-        cite_data['title'] = pkg_dict.get('title_translated', {}).get(lang, pkg_dict['title'])
+        cite_data['title'] = pkg_dict.get('title_translated', {}).get(
+            lang, pkg_dict['title'])
         cite_data['container_title'] = plugins.toolkit.config.get('ckan.site_title')
         if pkg_dict.get('owner_org'):
             org_dict = plugins.toolkit.get_action('organization_show')(
