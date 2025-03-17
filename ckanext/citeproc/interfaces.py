@@ -18,17 +18,17 @@ class ICiteProcStyles(interfaces.Interface):
 class ICiteProcMappings(interfaces.Interface):
     """Map Dataset and Resource fields to CSL"""
 
-    def dataset_citation_map(self, cite_data: DataDict,
-                             pkg_dict: DataDict) -> bool:
+    def update_dataset_citation_map(self, cite_data: DataDict,
+                                    pkg_dict: DataDict) -> bool:
         """
         Return a boolean for continue through other plugins,
         modify the cite_data dictionary of CSL fields and values via the pkg_dict
         """
         raise NotImplementedError
 
-    def resource_citation_map(self, cite_data: DataDict,
-                              pkg_dict: DataDict,
-                              res_dict: DataDict) -> bool:
+    def update_resource_citation_map(self, cite_data: DataDict,
+                                     pkg_dict: DataDict,
+                                     res_dict: DataDict) -> bool:
         """
         Return a boolean for continue through other plugins,
         modify the cite_data dictionary of CSL fields and values via the
