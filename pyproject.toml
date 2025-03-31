@@ -10,6 +10,10 @@ extraPaths = [
   "../.",
   "../ckan",
 ]
+
+[project.entry-points."ckan.plugins"]
+citeproc = "ckanext.citeproc.plugin:CiteProcPlugin"
+
 strict = []
 strictParameterNoneValue = true
 reportFunctionMemberAccess = true
