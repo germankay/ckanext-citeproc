@@ -14,6 +14,10 @@ setup(
             ('**/templates/**.html', 'ckan', None),
         ],
     },
+    include_package_data=True,  # Ensure additional files are included
+    package_data={
+        'ckanext.citeproc': ['csl_styles/*.csl'],  # Include CSL styles
+    },
     entry_points='''
         [ckan.plugins]
         citeproc=ckanext.citeproc.plugin:CiteProcPlugin
