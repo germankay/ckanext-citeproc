@@ -1,15 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "ckanext-citeproc"
 version = "0.1.0"
-description = "Citeproc extension for CKAN"
+description = "CKAN extension for CSL citations"
+authors = [
+  { name = "German Kay", email = "germankay@gmail.com" }
+]
 readme = "README.md"
-license = {text = "AGPL-3.0-or-later"}
-authors = [{name = "Tu Nombre", email = "tu@email.com"}]
+license = { text = "AGPL-3.0-or-later" }
+requires-python = ">=3.7"
 dependencies = []
-
-[build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
 
 [project.entry-points."ckan.plugins"]
 citeproc = "ckanext.citeproc.plugin:CiteProcPlugin"
