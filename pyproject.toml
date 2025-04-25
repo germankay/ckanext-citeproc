@@ -12,9 +12,7 @@ authors = [
   { name = "German Kay", email = "germankay@gmail.com" }
 ]
 requires-python = ">=3.7"
-dependencies = [
-  "csl-styles"
-]
+dependencies = []
 classifiers = [
   "Development Status :: 4 - Beta",
   "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
