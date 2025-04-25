@@ -6,13 +6,73 @@ build-backend = "setuptools.build_meta"
 name = "ckanext-citeproc"
 version = "0.1.0"
 description = "CKAN extension for CSL citations"
+readme = "README.md"
+license = { text = "AGPL-3.0-or-later" }
 authors = [
   { name = "German Kay", email = "germankay@gmail.com" }
 ]
-readme = "README.md"
-license = { text = "AGPL-3.0-or-later" }
 requires-python = ">=3.7"
 dependencies = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10"
+]
+keywords = ["CKAN", "CSL", "Citations", "Citeproc"]
 
 [project.entry-points."ckan.plugins"]
 citeproc = "ckanext.citeproc.plugin:CiteProcPlugin"
+
+[project.entry-points."babel.extractors"]
+ckan = "ckan.lib.extract:extract_ckan"
+csl = "ckanext.citeproc.extract:extract_csl_info"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ckanext*"]
+
+[tool.setuptools.package-data]
+"ckanext.citeproc" = ["csl_styles/*.csl"]
+
+[tool.extract_messages]
+keywords = "translate isPlural"
+add_comments = "TRANSLATORS:"
+output_file = "ckanext/citeproc/i18n/ckanext-citeproc.pot"
+width = 80
+
+[tool.init_catalog]
+domain = "ckanext-citeproc"
+input_file = "ckanext/citeproc/i18n/ckanext-citeproc.pot"
+output_dir = "ckanext/citeproc/i18n"
+
+[tool.update_catalog]
+domain = "ckanext-citeproc"
+input_file = "ckanext/citeproc/i18n/ckanext-citeproc.pot"
+output_dir = "ckanext/citeproc/i18n"
+previous = true
+
+[tool.compile_catalog]
+domain = "ckanext-citeproc"
+directory = "ckanext/citeproc/i18n"
+statistics = true
+
+[tool.pytest.ini_options]
+filterwarnings = [
+  "ignore::sqlalchemy.exc.SADeprecationWarning",
+  "ignore::sqlalchemy.exc.SAWarning",
+  "ignore::DeprecationWarning"
+]
+addopts = "--ckan-ini=test.ini"
+
+[tool.flake8]
+max-complexity = 100
+max-line-length = 88
+count = true
+exit-zero = true
+statistics = true

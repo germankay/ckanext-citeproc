@@ -42,10 +42,9 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
     # ICiteProcStyles
     def load_citation_styles(self):
         citation_styles_dir = plugins.toolkit.config.get(
-            'ckanext.citeproc.citation_styles_path')
-        if not citation_styles_dir:
-            raise Exception('ckanext.citeproc.citation_styles_path'
-                            'is not defined but required by ckanext-citeproc')
+            'ckanext.citeproc.citation_styles_path',
+            os.path.join(os.path.dirname(__file__), 'csl_styles')
+        )
         if not os.path.isdir(citation_styles_dir):
             raise Exception('%s is not a directory' % citation_styles_dir)
         for f in os.listdir(citation_styles_dir):
