@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from citeproc import CitationStylesBibliography
 from citeproc import Citation, CitationItem
 from citeproc import formatter, PRIMARY_DIALECTS
@@ -101,7 +103,13 @@ def dataset_citation_show(context: Context,
 
     pkg_dict = get_action('package_show')(context, {'id': data['id']})
 
-    cite_data = {'type': WEBPAGE}
+    date_now = datetime.now()
+    cite_data = {
+        'type': WEBPAGE,
+        'accessed': {
+            'date-parts': [[date_now.year, date_now.month, date_now.month]]
+        }
+    }
     for plugin in PluginImplementations(ICiteProcMappings):
         do_next_plugins = plugin.update_dataset_citation_map(
             cite_data, pkg_dict)
@@ -127,7 +135,13 @@ def resource_citation_show(context: Context,
     res_dict = get_action('resource_show')(context, {'id': data['id']})
     pkg_dict = get_action('package_show')(context, {'id': res_dict['package_id']})
 
-    cite_data = {'type': WEBPAGE}
+    date_now = datetime.now()
+    cite_data = {
+        'type': WEBPAGE,
+        'accessed': {
+            'date-parts': [[date_now.year, date_now.month, date_now.month]]
+        }
+    }
     for plugin in PluginImplementations(ICiteProcMappings):
         do_next_plugins = plugin.update_resource_citation_map(
             cite_data, pkg_dict, res_dict)
