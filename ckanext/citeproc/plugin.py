@@ -27,7 +27,6 @@ from ckanext.citeproc import helpers
 log = getLogger(__name__)
 
 
-@plugins.toolkit.blanket.config_declarations
 class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
     plugins.implements(ICiteProcStyles, inherit=True)
     plugins.implements(ICiteProcMappings)
