@@ -87,6 +87,9 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
                     'type_acronym': style_info.get('title-short'),
                     'type_summary': style_info.get('summary'),
                     'class': bib_style})
+        # Sort citation styles alphabetically by title
+        self.citation_styles.sort(key=lambda x: x['type'].lower() if x['type'] else '')
+        # Log the number of loaded citation styles
         log.debug('Loaded %s citation styles from %s' %
                   (len(self.citation_styles), citation_styles_dir))
 
