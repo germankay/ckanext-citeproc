@@ -64,12 +64,13 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
                         ['git', 'clone', 'https://github.com/citation-style-language/styles.git', tmpdirname]
                     )
                     # Copy only .csl files (not the entire git history)
-                    for f in os.listdir(tmpdirname):
-                        if f.endswith('.csl'):
-                            shutil.copy(
-                                os.path.join(tmpdirname, f),
-                                os.path.join(citation_styles_dir, f)
-                            )
+                    for root, _, files in os.walk(tmpdirname):
+                        for f in files:
+                            if f.endswith('.csl'):
+                                shutil.copy(
+                                    os.path.join(root, f),
+                                    os.path.join(citation_styles_dir, f)
+                                )
                     log.info('Successfully downloaded CSL files to %s', citation_styles_dir)
                 except (subprocess.SubprocessError, OSError) as e:
                     log.error('Failed to download CSL files: %s', str(e))
