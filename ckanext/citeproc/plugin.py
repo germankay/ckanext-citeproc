@@ -74,7 +74,10 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
                     log.info('Successfully downloaded CSL files to %s', citation_styles_dir)
                 except (subprocess.SubprocessError, OSError) as e:
                     log.error('Failed to download CSL files: %s', str(e))
-
+                    raise RuntimeError(
+                        'Failed to download CSL files. Please check the configuration or manually place CSL files in %s' %
+                        citation_styles_dir
+                    )
         # Load CSL files from the directory
         for f in os.listdir(citation_styles_dir):
             if f.endswith('.csl'):
