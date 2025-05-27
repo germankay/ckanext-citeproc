@@ -2,6 +2,9 @@ import os
 from datetime import datetime
 import xmltodict
 import shutil
+import subprocess
+import tempfile
+
 from lxml.etree import tostring
 from citeproc import CitationStylesStyle
 from logging import getLogger
@@ -50,9 +53,6 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
             f.endswith('.csl') for f in os.listdir(citation_styles_dir) if os.path.isfile(os.path.join(citation_styles_dir, f))
         ):
             log.info('No CSL files found in %s. Downloading styles...', citation_styles_dir)
-            import subprocess
-            import tempfile
-
             # Ensure the directory exists
             if not os.path.isdir(citation_styles_dir):
                 os.makedirs(citation_styles_dir)
