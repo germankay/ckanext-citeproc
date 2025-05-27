@@ -1,6 +1,10 @@
 import os
 from datetime import datetime
 import xmltodict
+import shutil
+import subprocess
+import tempfile
+
 from lxml.etree import tostring
 from citeproc import CitationStylesStyle
 from logging import getLogger
@@ -44,8 +48,37 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
             'ckanext.citeproc.citation_styles_path',
             os.path.join(os.path.dirname(__file__), 'csl_styles')
         )
-        if not os.path.isdir(citation_styles_dir):
-            raise Exception('%s is not a directory' % citation_styles_dir)
+        # Check if directory exists and has CSL files
+        if not os.path.isdir(citation_styles_dir) or not any(
+            f.endswith('.csl') for f in os.listdir(citation_styles_dir) if os.path.isfile(os.path.join(citation_styles_dir, f))
+        ):
+            log.info('No CSL files found in %s. Downloading styles...', citation_styles_dir)
+            # Ensure the directory exists
+            if not os.path.isdir(citation_styles_dir):
+                os.makedirs(citation_styles_dir)
+
+            # Clone repository to temp dir and copy CSL files
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                try:
+                    subprocess.check_call(
+                        ['git', 'clone', 'https://github.com/citation-style-language/styles.git', tmpdirname]
+                    )
+                    # Copy only .csl files (not the entire git history)
+                    for root, _, files in os.walk(tmpdirname):
+                        for f in files:
+                            if f.endswith('.csl'):
+                                shutil.copy(
+                                    os.path.join(root, f),
+                                    os.path.join(citation_styles_dir, f)
+                                )
+                    log.info('Successfully downloaded CSL files to %s', citation_styles_dir)
+                except (subprocess.SubprocessError, OSError) as e:
+                    log.error('Failed to download CSL files: %s', str(e))
+                    raise RuntimeError(
+                        'Failed to download CSL files. Please check the configuration or manually place CSL files in %s' %
+                        citation_styles_dir
+                    )
+        # Load CSL files from the directory
         for f in os.listdir(citation_styles_dir):
             if f.endswith('.csl'):
                 bib_style = CitationStylesStyle(os.path.join(citation_styles_dir, f),
@@ -58,6 +91,9 @@ class CiteProcPlugin(plugins.SingletonPlugin, DefaultTranslation):
                     'type_acronym': style_info.get('title-short'),
                     'type_summary': style_info.get('summary'),
                     'class': bib_style})
+        # Sort citation styles alphabetically by title
+        self.citation_styles.sort(key=lambda x: x['type'].lower() if x['type'] else '')
+        # Log the number of loaded citation styles
         log.debug('Loaded %s citation styles from %s' %
                   (len(self.citation_styles), citation_styles_dir))
 
